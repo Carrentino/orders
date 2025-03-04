@@ -1,10 +1,10 @@
 import enum
 
 
-class OrderStatus(enum.Enum):
-    UNDER_CONSIDERATION = 0  # На рассмотрении
-    ACCEPTED = 1  # Подтвержден
-    REJECTED = 2  # Отклонен
-    CANCELED = 3  # Отменен
-    IN_PROGRESS = 4  # Выполняется
-    FINISHED = 5  # Завершен
+class OrderStatus(enum.StrEnum):
+    UNDER_CONSIDERATION = 'На рассмотрении'
+    ACCEPTED = 'Подтвержден'
+    REJECTED = 'Отклонен'
+    CANCELED = 'Отменен'
+    IN_PROGRESS = 'Выполняется'
+    FINISHED = 'Завершен'

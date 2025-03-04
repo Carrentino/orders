@@ -575,7 +575,7 @@ files = [
     {file = "colorama-0.4.6-py2.py3-none-any.whl", hash = "sha256:4f1d9991f5acc0ca119f9d443620b77f9d6b33703e51011c16baf57afb285fc6"},
     {file = "colorama-0.4.6.tar.gz", hash = "sha256:08695f5cb7ed6e0531a20572697297273c47b8cae5a63ffc6d6ed5c201be6e44"},
 ]
-markers = {main = "sys_platform == \"win32\" or platform_system == \"Windows\"", dev = "sys_platform == \"win32\" or platform_system == \"Windows\" or os_name == \"nt\""}
+markers = {main = "platform_system == \"Windows\" or sys_platform == \"win32\"", dev = "platform_system == \"Windows\" or sys_platform == \"win32\" or os_name == \"nt\""}
 
 [[package]]
 name = "crashtest"
@@ -1079,7 +1079,7 @@ files = [
 
 [[package]]
 name = "helpers"
-version = "0.1.0"
+version = "0.1.1"
 description = ""
 optional = false
 python-versions = "~3.12"
@@ -1092,18 +1092,19 @@ aiokafka = "^0.12.0"
 factory-boy = "^3.3.3"
 fastapi = "^0.115.8"
 httpx = "^0.28.1"
-jose = "^1.0.0"
 loguru = "^0.7.3"
 orjson = "^3.10.15"
 pydantic = "^2.10.6"
 pytest = "^8.3.4"
+python-jose = "3.4.0"
+redis = "^5.2.1"
 sqlalchemy = "^2.0.37"
 
 [package.source]
 type = "git"
-url = "ssh://git@github.com/Carrentino/helpers.git"
+url = "https://github.com/Carrentino/helpers.git"
 reference = "main"
-resolved_reference = "00bc340d7c7635f7c4b21410dcfe3afd7c62064f"
+resolved_reference = "f53a88c0631f090937a6d216f33cfab66d9877d0"
 
 [[package]]
 name = "httpcore"
@@ -1339,20 +1340,6 @@ files = [
     {file = "jmespath-1.0.1-py3-none-any.whl", hash = "sha256:02e2e4cc71b5bcab88332eebf907519190dd9e6e82107fa7f83b1003a6252980"},
     {file = "jmespath-1.0.1.tar.gz", hash = "sha256:90261b206d6defd58fdd5e85f478bf633a2901798906be2ad389150c5c60edbe"},
 ]
-
-[[package]]
-name = "jose"
-version = "1.0.0"
-description = "An implementation of the JOSE draft"
-optional = false
-python-versions = "*"
-groups = ["main"]
-files = [
-    {file = "jose-1.0.0.tar.gz", hash = "sha256:8436c3617cd94e1ba97828fbb1ce27c129f66c78fb855b4bb47e122b5f345fba"},
-]
-
-[package.dependencies]
-pycrypto = ">=2.6"
 
 [[package]]
 name = "keyring"
@@ -2293,17 +2280,6 @@ files = [
 ]
 
 [[package]]
-name = "pycrypto"
-version = "2.6.1"
-description = "Cryptographic modules for Python."
-optional = false
-python-versions = "*"
-groups = ["main"]
-files = [
-    {file = "pycrypto-2.6.1.tar.gz", hash = "sha256:f2ce1e989b272cfcb677616763e0a2e7ec659effa67a88aa92b3a65528f60a3c"},
-]
-
-[[package]]
 name = "pydantic"
 version = "2.10.6"
 description = "Data validation using Python type hints"
@@ -2905,6 +2881,22 @@ files = [
 
 [package.extras]
 all = ["numpy"]
+
+[[package]]
+name = "redis"
+version = "5.2.1"
+description = "Python client for Redis database and key-value store"
+optional = false
+python-versions = ">=3.8"
+groups = ["main"]
+files = [
+    {file = "redis-5.2.1-py3-none-any.whl", hash = "sha256:ee7e1056b9aea0f04c6c2ed59452947f34c4940ee025f5dd83e6a6418b6989e4"},
+    {file = "redis-5.2.1.tar.gz", hash = "sha256:16f2e22dff21d5125e8481515e386711a34cbec50f0e44413dd7d9c060a54e0f"},
+]
+
+[package.extras]
+hiredis = ["hiredis (>=3.0.0)"]
+ocsp = ["cryptography (>=36.0.1)", "pyopenssl (==23.2.1)", "requests (>=2.31.0)"]
 
 [[package]]
 name = "requests"
@@ -3911,4 +3903,4 @@ test = ["pytest"]
 [metadata]
 lock-version = "2.1"
 python-versions = "~3.12"
-content-hash = "d0a5641f1faf386007ed88a65ba634b697aa94e7ff63378d6f8281ba8f305e4a"
+content-hash = "a7f2d40a496e25cec1f2d714b7a27b7ed91012ce8b47bc3ffb604ec82e3a2ffb"

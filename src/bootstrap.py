@@ -14,7 +14,7 @@ from prometheus_fastapi_instrumentator import Instrumentator
 from pydantic import PostgresDsn
 
 from src.settings import get_settings
-
+from src.web.api.orders.views import orders_router
 
 
 @lru_cache
@@ -43,7 +43,7 @@ def setup_middlewares(app: FastAPI) -> None:
 
 def setup_api_routers(app: FastAPI) -> None:
     api_router = APIRouter(prefix='/api')
-
+    api_router.include_router(orders_router, prefix='/orders', tags=['orders'])
     app.include_router(router=api_router)
 
 
@@ -55,7 +55,7 @@ def setup_prometheus(app: FastAPI) -> None:
 
 def make_app() -> FastAPI:
     app = FastAPI(
-        title='base',
+        title='orders',
         lifespan=_lifespan,
         docs_url='/api/docs',
         redoc_url='/api/redoc',
