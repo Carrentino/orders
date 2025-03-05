@@ -23,3 +23,11 @@ class LessorOrdersList(BaseModel):
 
     class Config:
         from_attributes = True
+
+
+class PaginatedLessorOrdersList(BaseModel):
+    page: int
+    size: int
+    total: int
+    total_pages: int
+    data: list[LessorOrdersList]

@@ -5,6 +5,7 @@ from typing import Any
 
 from fastapi import APIRouter, FastAPI
 from fastapi.responses import UJSONResponse
+from fastapi.openapi.utils import get_openapi
 from helpers.api.bootstrap.setup_error_handlers import setup_error_handlers
 from helpers.api.middleware.auth import AuthMiddleware
 from helpers.api.middleware.trace_id.middleware import TraceIdMiddleware
@@ -67,5 +68,29 @@ def make_app() -> FastAPI:
     setup_prometheus(app)
     setup_api_routers(app)
     setup_middlewares(app)
+
+    def custom_openapi():
+        if app.openapi_schema:
+            return app.openapi_schema
+        openapi_schema = get_openapi(
+            title=app.title,
+            version="1.0.0",
+            description="API documentation for orders service",
+            routes=app.routes,
+        )
+        openapi_schema["components"]["securitySchemes"] = {
+            "X-Auth-Token": {
+                "type": "apiKey",
+                "in": "header",
+                "name": "X-Auth-Token",
+            }
+        }
+        for path in openapi_schema["paths"].values():
+            for method in path.values():
+                method["security"] = [{"X-Auth-Token": []}]
+        app.openapi_schema = openapi_schema
+        return app.openapi_schema
+
+    app.openapi = custom_openapi
 
     return app
