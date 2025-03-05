@@ -1,9 +1,10 @@
 from datetime import datetime
 from uuid import UUID
 
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 
 from src.db.consts import OrderStatus
+from src.web.api.orders.consts import OrderSortFields
 
 
 class LessorOrdersList(BaseModel):
@@ -31,3 +32,12 @@ class PaginatedLessorOrdersList(BaseModel):
     total: int
     total_pages: int
     data: list[LessorOrdersList]
+
+
+class LessorOrdersQueryParams(BaseModel):
+    page: int = Field(0, ge=0, description="Номер страницы")
+    size: int = Field(10, ge=1, le=10, description="Размер страницы")
+    car_id: str | None = Field(None, description="Фильтр по uid авто")
+    status: OrderStatus | None = Field(None, description="Фильтр по статусу")
+    sort_by: OrderSortFields = Field(OrderSortFields.CREATED_AT, description="Поле для сортировки")
+    sort_direction: str = Field("asc", pattern="^(asc|desc)$", description="Направление сортировки")

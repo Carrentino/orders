@@ -1,12 +1,16 @@
 import uuid
 from datetime import datetime
+from typing import TYPE_CHECKING
 
 from sqlalchemy import Index, DateTime, ForeignKey, Boolean, Enum
 from helpers.sqlalchemy.base_model import Base
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from src.db.consts import OrderStatus
-from src.db.models.contract import Contract
+
+
+if TYPE_CHECKING:
+    from src.db.models.contract import Contract
 
 
 class Order(Base):
@@ -26,7 +30,7 @@ class Order(Base):
     is_renter_start_order: Mapped[bool] = mapped_column(Boolean, default=False)
     is_lessor_start_order: Mapped[bool] = mapped_column(Boolean, default=False)
     contract_id: Mapped[uuid.UUID] = mapped_column(ForeignKey('contracts.id'), nullable=True)
-    contract: Mapped[Contract] = relationship("Contract", back_populates="order")
+    contract: Mapped['Contract'] = relationship("Contract", back_populates="order")
 
     __table_args__ = (
         Index('ix_orders_renter_id', 'renter_id', postgresql_using='btree'),

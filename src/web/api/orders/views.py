@@ -2,14 +2,12 @@ import math
 from typing import Annotated
 from uuid import UUID
 
-from fastapi import APIRouter, Depends, Query
+from fastapi import APIRouter, Depends
 from helpers.depends.auth import get_current_user
 from helpers.models.user import UserContext
 
-from src.db.consts import OrderStatus
 from src.services.order import OrderService
-from src.web.api.orders.consts import OrderSortFields
-from src.web.api.orders.schems import LessorOrdersList, PaginatedLessorOrdersList
+from src.web.api.orders.schems import LessorOrdersList, PaginatedLessorOrdersList, LessorOrdersQueryParams
 from src.web.depends.service import get_order_service
 
 orders_router = APIRouter()
@@ -19,23 +17,16 @@ orders_router = APIRouter()
 async def lessor_orders(
     current_user: Annotated[UserContext, Depends(get_current_user)],
     order_service: Annotated[OrderService, Depends(get_order_service)],
-    page: int = Query(ge=0, default=0),
-    size: int = Query(ge=1, le=10, default=10),
-    car_id: str = Query(None, description='фильтр по uid авто'),
-    status: OrderStatus = Query(None, description='фильтр по статусу'),
-    sort_by: OrderSortFields = Query(OrderSortFields.CREATED_AT, description="Поле для сортировки"),
-    sort_direction: str = Query("asc", regex="^(asc|desc)$", description="Направление сортировки"),
+    query_params: LessorOrdersQueryParams = Depends(),
 ):
     filters = {}
-    if car_id:
-        filters['car_id'] = UUID(car_id)
-    if status:
-        filters['status'] = status
+    if query_params.car_id:
+        filters['car_id'] = UUID(query_params.car_id)
+    if query_params.status:
+        filters['status'] = query_params.status
 
-    orders = await order_service.get_lessor_orders(
-        current_user.user_id, page=page, size=size, filters=filters, sort_by=sort_by, sort_direction=sort_direction
-    )
-    total_pages = math.ceil(orders['total'] / size)
+    orders = await order_service.get_lessor_orders(current_user.user_id, params=query_params)
+    total_pages = math.ceil(orders['total'] / query_params.size)
 
     return {
         'page': orders['page'],
