@@ -9,7 +9,7 @@ import pytest
 from fastapi import FastAPI
 from helpers.depends.db_session import get_db_client
 from helpers.sqlalchemy.client import SQLAlchemyClient
-from httpx import AsyncClient
+from httpx import AsyncClient, ASGITransport
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from src.bootstrap import make_app
@@ -64,7 +64,10 @@ async def setup_db() -> AsyncGenerator[SQLAlchemyClient, None]:
 
 @pytest.fixture()
 async def session() -> AsyncSession:
-    return get_session()
+    session = get_session()
+    yield session
+
+    await session.close()
 
 
 @pytest.fixture(scope='session', autouse=True)
@@ -82,11 +85,9 @@ async def settings() -> Settings:
 
 
 @pytest.fixture()
-async def client(
-    app: FastAPI,
-) -> AsyncGenerator[AsyncClient, None]:
-    async with AsyncClient(app=app, base_url='http://test') as client:
-        yield client
+async def client(app: FastAPI) -> AsyncGenerator[AsyncClient, None]:
+    async with AsyncClient(transport=ASGITransport(app=app), base_url="http://test") as ac:
+        yield ac
 
 
 @pytest.fixture()

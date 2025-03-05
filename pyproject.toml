@@ -1,5 +1,5 @@
 [tool.poetry]
-name = "base"
+name = "orders"
 package-mode = false
 version = "0.1.0"
 
@@ -11,7 +11,6 @@ build-backend = "poetry.core.masonry.api"
 python = "~3.12"
 alembic = { extras = ["tz"], version = "^1.13.0" }
 asyncpg = "^0.29.0"
-helpers = { git = "git@github.com:Carrentino/helpers.git", branch = 'main' }
 fastapi = { extras = ["all"], version = "^0.115.8" }
 gunicorn = "^23.0.0"
 loguru = "^0.7.0"
@@ -24,6 +23,8 @@ sqladmin = "^0.18.0"
 sqlalchemy = { extras = ["asyncio", "mypy"], version = "^2.0.0" }
 pytest-env = "^1.1.4"
 fastapi-storages = "^0.3.0"
+python-jose = "^3.4.0"
+helpers = {git = "https://github.com/Carrentino/helpers.git", rev = "main"}
 
 
 [tool.poetry.group.dev.dependencies]

@@ -5,6 +5,7 @@ from typing import Any
 
 from fastapi import APIRouter, FastAPI
 from fastapi.responses import UJSONResponse
+from fastapi.openapi.utils import get_openapi
 from helpers.api.bootstrap.setup_error_handlers import setup_error_handlers
 from helpers.api.middleware.auth import AuthMiddleware
 from helpers.api.middleware.trace_id.middleware import TraceIdMiddleware
@@ -14,7 +15,7 @@ from prometheus_fastapi_instrumentator import Instrumentator
 from pydantic import PostgresDsn
 
 from src.settings import get_settings
-
+from src.web.api.orders.views import orders_router
 
 
 @lru_cache
@@ -43,7 +44,7 @@ def setup_middlewares(app: FastAPI) -> None:
 
 def setup_api_routers(app: FastAPI) -> None:
     api_router = APIRouter(prefix='/api')
-
+    api_router.include_router(orders_router, prefix='/orders', tags=['orders'])
     app.include_router(router=api_router)
 
 
@@ -55,7 +56,7 @@ def setup_prometheus(app: FastAPI) -> None:
 
 def make_app() -> FastAPI:
     app = FastAPI(
-        title='base',
+        title='orders',
         lifespan=_lifespan,
         docs_url='/api/docs',
         redoc_url='/api/redoc',
@@ -67,5 +68,29 @@ def make_app() -> FastAPI:
     setup_prometheus(app)
     setup_api_routers(app)
     setup_middlewares(app)
+
+    def custom_openapi():
+        if app.openapi_schema:
+            return app.openapi_schema
+        openapi_schema = get_openapi(
+            title=app.title,
+            version="1.0.0",
+            description="API documentation for orders service",
+            routes=app.routes,
+        )
+        openapi_schema["components"]["securitySchemes"] = {
+            "X-Auth-Token": {
+                "type": "apiKey",
+                "in": "header",
+                "name": "X-Auth-Token",
+            }
+        }
+        for path in openapi_schema["paths"].values():
+            for method in path.values():
+                method["security"] = [{"X-Auth-Token": []}]
+        app.openapi_schema = openapi_schema
+        return app.openapi_schema
+
+    app.openapi = custom_openapi
 
     return app
