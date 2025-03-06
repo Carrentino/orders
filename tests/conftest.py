@@ -1,20 +1,23 @@
 import asyncio
+import datetime
 import sys
+import uuid
 from asyncio import AbstractEventLoop
 from collections.abc import AsyncGenerator, Generator
 from functools import lru_cache
 from typing import Any
 
 import pytest
+from asyncpg.pgproto.pgproto import timedelta
 from fastapi import FastAPI
 from helpers.depends.db_session import get_db_client
+from helpers.jwt import encode_jwt
 from helpers.sqlalchemy.client import SQLAlchemyClient
 from httpx import AsyncClient, ASGITransport
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from src.bootstrap import make_app
 from src.settings import get_settings, Settings
-from tests.constants import TEST_AUTH_TOKEN
 
 TEST_SQL_ALCHEMY_CLIENT = SQLAlchemyClient(dsn=get_settings().test_postgres_dsn)
 
@@ -90,9 +93,18 @@ async def client(app: FastAPI) -> AsyncGenerator[AsyncClient, None]:
         yield ac
 
 
-@pytest.fixture()
-async def auth_client(
-    app: FastAPI,
-) -> AsyncGenerator[AsyncClient, None]:
-    async with AsyncClient(app=app, base_url='http://test', headers={'X-Auth-Token': TEST_AUTH_TOKEN}) as client:
+@pytest.fixture(scope="function")  # noqa
+async def auth_client(app: FastAPI) -> AsyncGenerator[AsyncClient, None]:
+    user_id = uuid.uuid4()
+    payload = {
+        'user_id': str(user_id),
+        'status': 'VERIFIED',
+        'type': 'ACCESS',
+        'exp': datetime.datetime.now() + timedelta(days=1),
+    }
+    token = encode_jwt(get_settings().jwt_key.get_secret_value(), payload, algorithm="HS256")
+    async with AsyncClient(
+        transport=ASGITransport(app=app), base_url='http://test', headers={'X-Auth-Token': token}
+    ) as client:
+        client.user_id = user_id
         yield client

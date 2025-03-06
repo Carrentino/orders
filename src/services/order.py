@@ -24,3 +24,17 @@ class OrderService:
             sort_direction=params.sort_direction,
             **filters,
         )
+
+    async def get_renter_orders(self, user_id: UUID, params: LessorOrdersQueryParams = Depends()) -> list[Order]:
+        filters = {"renter_id": user_id}
+        if params.car_id:
+            filters["car_id"] = params.car_id
+        if params.status:
+            filters["status"] = params.status
+        return await self.order_repository.get_paginated_sorted_list(
+            page=params.page,
+            size=params.size,
+            sort_by=params.sort_by,
+            sort_direction=params.sort_direction,
+            **filters,
+        )
