@@ -2,12 +2,11 @@ from pydantic import BaseModel, Field
 
 
 class BasePaginatedQueryParams(BaseModel):
-    page: int = Field(0, ge=0, description="Номер страницы")
-    size: int = Field(10, ge=1, le=10, description="Размер страницы")
+    limit: int = Field(30, ge=1, description="Количество")
+    offset: int = Field(0, ge=0, description="Смещение")
 
 
 class BasePaginatedResp(BaseModel):
-    page: int
-    size: int
+    limit: int
+    offset: int
     total: int
-    total_pages: int

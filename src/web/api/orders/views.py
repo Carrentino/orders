@@ -1,4 +1,3 @@
-import math
 from typing import Annotated
 from uuid import UUID
 
@@ -32,13 +31,11 @@ async def lessor_orders(
         filters['status'] = query_params.status
 
     orders = await order_service.get_lessor_orders(current_user.user_id, params=query_params)
-    total_pages = math.ceil(orders['total'] / query_params.size)
 
     return PaginatedLessorOrdersListResp(
-        page=orders['page'],
-        size=orders['size'],
+        limit=orders['limit'],
+        offset=orders['offset'],
         total=orders['total'],
-        total_pages=total_pages,
         data=[LessorOrderList.model_validate(order) for order in orders['data']],
     )
 
@@ -56,12 +53,10 @@ async def renter_orders(
         filters['status'] = query_params.status
 
     orders = await order_service.get_renter_orders(current_user.user_id, params=query_params)
-    total_pages = math.ceil(orders['total'] / query_params.size)
 
     return PaginatedRenterOrderListResp(
-        page=orders['page'],
-        size=orders['size'],
+        limit=orders['limit'],
+        offset=orders['offset'],
         total=orders['total'],
-        total_pages=total_pages,
         data=[RenterOrderList.model_validate(order) for order in orders['data']],
     )

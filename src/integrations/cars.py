@@ -16,14 +16,7 @@ class CarsClient(BaseApiClient):
         return 0
 
     async def get_cars_with_filters(self, **filters: dict[str, Any]) -> requests.Response:
-        params = {}
-        for key, value in filters.items():
-            if value is not None:
-                if isinstance(value, list):
-                    params[key] = ",".join(str(v) for v in value)
-                else:
-                    params[key] = value
-        response = await self.get(urljoin(self._base_url, ''), params=params)
+        response = await self.get(urljoin(self._base_url, ""), params=filters)
         for car in response.json()['data']:
             await CarCacheService.set_car(car['id'], car)
         return response

@@ -41,6 +41,7 @@ async def test_get_list_lessor_pagination(mock_cache: AsyncMock, auth_client: As
     response = await auth_client.get('/api/orders/lessor-orders/')
 
     assert response.status_code == status.HTTP_200_OK
-    assert len(response.json()['data']) == 10
+    assert len(response.json()['data']) == 20
     assert response.json()['total'] == 20
-    assert response.json()['total_pages'] == 2
+    assert response.json()['limit'] == 30
+    assert response.json()['offset'] == 0

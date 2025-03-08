@@ -41,8 +41,8 @@ class OrderService:
         if params.status:
             filters["status"] = params.status
         orders_data = await self.order_repository.get_paginated_sorted_list(
-            page=params.page,
-            size=params.size,
+            limit=params.limit,
+            offset=params.offset,
             sort_by=params.sort_by,
             sort_direction=params.sort_direction,
             **filters,
@@ -57,8 +57,8 @@ class OrderService:
         if params.status:
             filters["status"] = params.status
         orders_data = await self.order_repository.get_paginated_sorted_list(
-            page=params.page,
-            size=params.size,
+            limit=params.limit,
+            offset=params.offset,
             sort_by=params.sort_by,
             sort_direction=params.sort_direction,
             **filters,
