@@ -10,7 +10,7 @@ from src.web.api.orders.consts import OrderSortFields
 
 class OrdersList(BaseModel):
     id: UUID
-    car_id: UUID
+    car: dict
     renter_id: UUID
     lessor_id: UUID
     chat_room_id: UUID

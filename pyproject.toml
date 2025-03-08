@@ -25,6 +25,7 @@ pytest-env = "^1.1.4"
 fastapi-storages = "^0.3.0"
 python-jose = "^3.4.0"
 helpers = {git = "https://github.com/Carrentino/helpers.git", rev = "main"}
+aioresponses = "^0.7.8"
 
 
 [tool.poetry.group.dev.dependencies]
