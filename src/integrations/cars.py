@@ -23,7 +23,7 @@ class CarsClient(BaseApiClient):
                     params[key] = ",".join(str(v) for v in value)
                 else:
                     params[key] = value
-        response = await self.get(urljoin(self._base_url, ""), params=params)
+        response = await self.get(urljoin(self._base_url, ''), params=params)
         for car in response.json()['data']:
             await CarCacheService.set_car(car['id'], car)
         return response
