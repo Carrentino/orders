@@ -1,5 +1,6 @@
 from uuid import UUID
 
+import httpx
 from fastapi.params import Depends
 
 from src.db.models.order import Order
@@ -26,8 +27,13 @@ class OrderService:
 
         if not_found_cars:
             filters = {"car__id": not_found_cars}
-            car_objs = await self.cars_client.get_cars_with_filters(**filters)
-            car_dict = {car['id']: car for car in car_objs.json()['data']}
+            try:
+                response = await self.cars_client.get_cars_with_filters(**filters)
+                car_objs = response.json()['data']
+            except httpx.HTTPStatusError:
+                car_objs = [{'id': car_id} for car_id in not_found_cars]
+
+            car_dict = {car['id']: car for car in car_objs}
             for order in orders_data['data']:
                 if order.car_id in car_dict:
                     order.car = car_dict[order.car_id]

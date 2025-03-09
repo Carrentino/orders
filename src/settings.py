@@ -50,6 +50,8 @@ class Settings(BaseSettings):
 
     redis: RedisSettings = RedisSettings()
 
+    base_cars_url: SecretStr = Field(default='https://carrentino.ru/cars/api/v1/')
+
 
 @lru_cache
 def get_settings() -> Settings:

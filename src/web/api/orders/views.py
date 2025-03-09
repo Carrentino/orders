@@ -1,5 +1,4 @@
 from typing import Annotated
-from uuid import UUID
 
 from fastapi import APIRouter, Depends
 from helpers.depends.auth import get_current_user
@@ -24,12 +23,6 @@ async def lessor_orders(
     order_service: Annotated[OrderService, Depends(get_order_service)],
     query_params: LessorOrdersQueryParams = Depends(),
 ):
-    filters = {}
-    if query_params.car_id:
-        filters['car_id'] = UUID(query_params.car_id)
-    if query_params.status:
-        filters['status'] = query_params.status
-
     orders = await order_service.get_lessor_orders(current_user.user_id, params=query_params)
 
     return PaginatedLessorOrdersListResp(
@@ -46,12 +39,6 @@ async def renter_orders(
     order_service: Annotated[OrderService, Depends(get_order_service)],
     query_params: LessorOrdersQueryParams = Depends(),
 ):
-    filters = {}
-    if query_params.car_id:
-        filters['car_id'] = UUID(query_params.car_id)
-    if query_params.status:
-        filters['status'] = query_params.status
-
     orders = await order_service.get_renter_orders(current_user.user_id, params=query_params)
 
     return PaginatedRenterOrderListResp(

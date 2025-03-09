@@ -13,8 +13,8 @@ class OrderRepository(ISqlAlchemyRepository[Order]):
     async def get_paginated_sorted_list(
         self,
         ids: list[UUID | int] | None = None,
-        limit: int | None = None,
-        offset: int | None = None,
+        limit: int | None = 30,
+        offset: int | None = 0,
         sort_by: str | None = None,
         sort_direction: str = 'asc',
         **filters: Any,

@@ -12,6 +12,7 @@ from asyncpg.pgproto.pgproto import timedelta
 from fastapi import FastAPI
 from helpers.depends.db_session import get_db_client
 from helpers.jwt import encode_jwt
+from helpers.models.user import UserStatus, TokenType
 from helpers.sqlalchemy.client import SQLAlchemyClient
 from httpx import AsyncClient, ASGITransport
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -98,8 +99,8 @@ async def auth_client(app: FastAPI) -> AsyncGenerator[AsyncClient, None]:
     user_id = uuid.uuid4()
     payload = {
         'user_id': str(user_id),
-        'status': 'VERIFIED',
-        'type': 'ACCESS',
+        'status': UserStatus.VERIFIED,
+        'type': TokenType.ACCESS,
         'exp': datetime.datetime.now() + timedelta(days=1),
     }
     token = encode_jwt(get_settings().jwt_key.get_secret_value(), payload, algorithm="HS256")

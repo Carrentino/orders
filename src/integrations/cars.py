@@ -2,21 +2,23 @@ from typing import Any
 from uuid import UUID
 from urllib.parse import urljoin
 
-import requests
+import httpx
 from helpers.clients.http_client import BaseApiClient
 
 from src.services.cars_cache import CarCacheService
+from src.settings import get_settings
 
 
 class CarsClient(BaseApiClient):
-    _base_url = 'https://carrentino.ru/cars/api/v1/'
+    _base_url = str(get_settings().base_cars_url)
 
     async def get_car(self, car_id: UUID) -> int:  # noqa
 
         return 0
 
-    async def get_cars_with_filters(self, **filters: dict[str, Any]) -> requests.Response:
+    async def get_cars_with_filters(self, **filters: dict[str, Any]) -> httpx.Response:
         response = await self.get(urljoin(self._base_url, ""), params=filters)
+        response.raise_for_status()
         for car in response.json()['data']:
             await CarCacheService.set_car(car['id'], car)
         return response
