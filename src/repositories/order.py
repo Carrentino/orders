@@ -2,9 +2,11 @@ from typing import Any
 from uuid import UUID
 
 from helpers.sqlalchemy.base_repo import ISqlAlchemyRepository
-from sqlalchemy import select, desc, asc, func
+from sqlalchemy import select, desc, asc, func, and_, or_
 
+from src.db.consts import OrderStatus
 from src.db.models.order import Order
+from src.web.api.orders.schems import CreateOrderReq
 
 
 class OrderRepository(ISqlAlchemyRepository[Order]):
@@ -40,3 +42,26 @@ class OrderRepository(ISqlAlchemyRepository[Order]):
             'total': total,
             'data': objects,
         }
+
+    async def intersection_orders_with_status_more_accepted(self, order_data: CreateOrderReq) -> list[Order]:
+        start = order_data.desired_start_datetime
+        finish = order_data.desired_finish_datetime
+        orders = await self.session.execute(
+            select(Order).where(
+                and_(
+                    or_(
+                        and_(
+                            start <= Order.desired_finish_datetime, finish >= Order.desired_finish_datetime
+                        ),  # пересечение справа
+                        and_(
+                            start >= Order.desired_start_datetime, finish <= Order.desired_finish_datetime
+                        ),  # новый полностью внутри
+                        and_(
+                            start <= Order.desired_start_datetime, finish >= Order.desired_start_datetime
+                        ),  # пересечение слева
+                    ),
+                    Order.status == OrderStatus.ACCEPTED,
+                )
+            )
+        )
+        return orders.scalars().all()

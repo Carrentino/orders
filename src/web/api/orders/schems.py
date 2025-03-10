@@ -56,3 +56,9 @@ class RenterOrderList(OrdersList):
 
 class LessorOrderList(OrdersList):
     pass
+
+
+class CreateOrderReq(BaseModel):
+    car_id: UUID
+    desired_start_datetime: datetime
+    desired_finish_datetime: datetime

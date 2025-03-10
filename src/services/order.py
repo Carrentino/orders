@@ -1,19 +1,34 @@
+import uuid
 from uuid import UUID
 
 import httpx
+from asyncpg.pgproto.pgproto import timedelta
 from fastapi.params import Depends
 
 from src.db.models.order import Order
+from src.errors.service import (
+    AlreadyAcceptedOrdersForThisPeriodError,
+    CarsServiceError,
+    OrderRentPeriodDegreeOneHourError,
+)
 from src.integrations.cars import CarsClient
+from src.integrations.notifications import NotificationsKafkaProducer
+from src.integrations.schemas import PushNotification
 from src.repositories.order import OrderRepository
 from src.services.cars_cache import CarCacheService
-from src.web.api.orders.schems import LessorOrdersQueryParams
+from src.web.api.orders.schems import LessorOrdersQueryParams, CreateOrderReq
 
 
 class OrderService:
-    def __init__(self, order_repository: OrderRepository, cars_client: CarsClient) -> None:
+    def __init__(
+        self,
+        order_repository: OrderRepository,
+        cars_client: CarsClient,
+        notifications_kafka_producer: NotificationsKafkaProducer,
+    ) -> None:
         self.order_repository = order_repository
         self.cars_client = cars_client
+        self.notifications_kafka_producer = notifications_kafka_producer
 
     async def _add_car_objects(self, orders_data) -> list[Order]:
         not_found_cars = []
@@ -71,3 +86,25 @@ class OrderService:
         )
 
         return await self._add_car_objects(orders_data)
+
+    async def create_order(self, order_data: CreateOrderReq, user_id: UUID) -> UUID:
+        intersection_orders = await self.order_repository.intersection_orders_with_status_more_accepted(order_data)
+        if order_data.desired_finish_datetime - timedelta(hours=1) < order_data.desired_start_datetime:
+            raise OrderRentPeriodDegreeOneHourError from None
+        if len(intersection_orders) > 0:
+            raise AlreadyAcceptedOrdersForThisPeriodError from None
+        new_order = Order(car_id=order_data.car_id)
+        car_data = await self._add_car_objects({'data': [new_order]})
+        car_info = car_data['data'][0].car
+        lessor_id = car_info.get('user_id', None)
+        if not lessor_id:
+            raise CarsServiceError from None
+        order = Order(**dict(order_data), lessor_id=lessor_id, renter_id=user_id, chat_room_id=uuid.uuid4())
+        # TODO: добавить интеграцию с чатом
+        push = PushNotification(
+            to_user_id=lessor_id,
+            title='На ваш автомобиль оформили заявку!',
+            body='На ваш авто только что оформили новую заявку! \n Поспеши договориться',
+        )
+        await self.notifications_kafka_producer.send_push_notification(push)
+        return await self.order_repository.create(order)

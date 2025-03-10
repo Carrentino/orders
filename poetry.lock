@@ -1327,7 +1327,7 @@ files = [
 
 [[package]]
 name = "helpers"
-version = "0.1.1"
+version = "0.1.2"
 description = ""
 optional = false
 python-versions = "~3.12"
@@ -1352,7 +1352,7 @@ sqlalchemy = "^2.0.37"
 type = "git"
 url = "https://github.com/Carrentino/helpers.git"
 reference = "main"
-resolved_reference = "8d824263bb527ab80d2100808bb750269d1d7b9b"
+resolved_reference = "ec6cf1d68ed3020169968836829ffb89ab3bcd01"
 
 [[package]]
 name = "httpcore"

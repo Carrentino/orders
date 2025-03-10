@@ -17,6 +17,20 @@ class RedisSettings(BaseSettings):
     )
 
 
+class NotificationsKafka(BaseSettings):
+    notifications_topic: str = Field(default='notifications_pushes')
+    notifications_kafka_url: str = Field(default='http://localhost:6666')
+
+    model_config = SettingsConfigDict(
+        env_file='.env',
+        env_file_encoding='utf-8',
+        str_strip_whitespace=True,
+        validate_default=True,
+        case_sensitive=False,
+        extra='ignore',
+    )
+
+
 class Settings(BaseSettings):
     model_config = SettingsConfigDict(
         env_file='../.env',
@@ -51,6 +65,7 @@ class Settings(BaseSettings):
     redis: RedisSettings = RedisSettings()
 
     base_cars_url: SecretStr = Field(default='https://carrentino.ru/cars/api/v1/')
+    notifications_kafka: NotificationsKafka = NotificationsKafka()
 
 
 @lru_cache

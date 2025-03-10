@@ -1,16 +1,30 @@
 from typing import Annotated
+from uuid import UUID
 
 from fastapi import APIRouter, Depends
 from helpers.depends.auth import get_current_user
 from helpers.models.user import UserContext
+from starlette import status
 
+from src.errors.http import (
+    AlreadyAcceptedOrdersForThisPeriodHttpError,
+    CarsServiceHttpError,
+    OrderRentPeriodDegreeOneHourHttpError,
+)
+from src.errors.service import (
+    AlreadyAcceptedOrdersForThisPeriodError,
+    CarsServiceError,
+    OrderRentPeriodDegreeOneHourError,
+)
 from src.services.order import OrderService
+from src.web.api.base_schems import BaseCreateObjResp
 from src.web.api.orders.schems import (
     LessorOrderList,
     PaginatedLessorOrdersListResp,
     LessorOrdersQueryParams,
     PaginatedRenterOrderListResp,
     RenterOrderList,
+    CreateOrderReq,
 )
 from src.web.depends.service import get_order_service
 
@@ -47,3 +61,20 @@ async def renter_orders(
         total=orders['total'],
         data=[RenterOrderList.model_validate(order) for order in orders['data']],
     )
+
+
+@orders_router.post('/', response_model=BaseCreateObjResp, status_code=status.HTTP_201_CREATED)
+async def create_order(
+    current_user: Annotated[UserContext, Depends(get_current_user)],
+    order_service: Annotated[OrderService, Depends(get_order_service)],
+    req_data: CreateOrderReq,
+) -> BaseCreateObjResp:
+    try:
+        order_id = await order_service.create_order(req_data, user_id=UUID(current_user.user_id))
+        return BaseCreateObjResp(id=order_id)
+    except AlreadyAcceptedOrdersForThisPeriodError:
+        raise AlreadyAcceptedOrdersForThisPeriodHttpError from None
+    except CarsServiceError:
+        raise CarsServiceHttpError from None
+    except OrderRentPeriodDegreeOneHourError:
+        raise OrderRentPeriodDegreeOneHourHttpError from None
