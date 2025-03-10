@@ -11,3 +11,15 @@ class CarsServiceError(BaseError):
 
 class OrderRentPeriodDegreeOneHourError(BaseError):
     message = 'Rent period is degree then 1 hour'
+
+
+class NotLessorOrderError(BaseError):
+    message = 'User must be a lessor of order for change status of order to accepted'
+
+
+class OrderStatusMustBeUnderConsiderationError(BaseError):
+    message = 'for change order status to accepted current status of order must be under consideration'
+
+
+class OrderNotFoundError(BaseError):
+    message = 'NotFound this order'

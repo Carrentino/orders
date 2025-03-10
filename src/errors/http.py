@@ -15,3 +15,18 @@ class CarsServiceHttpError(ServerError):
 class OrderRentPeriodDegreeOneHourHttpError(ServerError):
     message = 'Rent period is degree then 1 hour'
     status_code = status.HTTP_403_FORBIDDEN
+
+
+class NotLessorOrderHttpError(ServerError):
+    message = 'User must be a lessor of order for change status of order to accepted'
+    status_code = status.HTTP_403_FORBIDDEN
+
+
+class OrderStatusMustBeUnderConsiderationHttpError(ServerError):
+    message = 'for change order status to accepted current status of order must be under consideration'
+    status_code = status.HTTP_403_FORBIDDEN
+
+
+class OrderNotFoundHttpError(ServerError):
+    message = 'NotFound this order'
+    status_code = status.HTTP_404_NOT_FOUND

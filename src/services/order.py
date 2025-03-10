@@ -5,11 +5,15 @@ import httpx
 from asyncpg.pgproto.pgproto import timedelta
 from fastapi.params import Depends
 
+from src.db.consts import OrderStatus
 from src.db.models.order import Order
 from src.errors.service import (
     AlreadyAcceptedOrdersForThisPeriodError,
     CarsServiceError,
     OrderRentPeriodDegreeOneHourError,
+    NotLessorOrderError,
+    OrderStatusMustBeUnderConsiderationError,
+    OrderNotFoundError,
 )
 from src.integrations.cars import CarsClient
 from src.integrations.notifications import NotificationsKafkaProducer
@@ -108,3 +112,13 @@ class OrderService:
         )
         await self.notifications_kafka_producer.send_push_notification(push)
         return await self.order_repository.create(order)
+
+    async def accept_order(self, order_id: UUID, user_id: UUID):
+        order = await self.order_repository.get(order_id)
+        if order is None:
+            raise OrderNotFoundError
+        if order.lessor_id != user_id:
+            raise NotLessorOrderError
+        if order.status != OrderStatus.UNDER_CONSIDERATION:
+            raise OrderStatusMustBeUnderConsiderationError
+        await self.order_repository.update(order_id, status=OrderStatus.ACCEPTED)
