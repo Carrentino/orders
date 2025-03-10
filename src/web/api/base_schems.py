@@ -1,3 +1,5 @@
+from uuid import UUID
+
 from pydantic import BaseModel, Field
 
 
@@ -10,3 +12,7 @@ class BasePaginatedResp(BaseModel):
     limit: int
     offset: int
     total: int
+
+
+class BaseCreateObjResp(BaseModel):
+    id: UUID

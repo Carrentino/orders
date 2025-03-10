@@ -51,6 +51,8 @@ class Settings(BaseSettings):
     redis: RedisSettings = RedisSettings()
 
     base_cars_url: SecretStr = Field(default='https://carrentino.ru/cars/api/v1/')
+    notifications_topic: SecretStr = Field(default='notifications_pushes')
+    notifications_kafka_url: SecretStr = Field(default='http://localhost:6666')
 
 
 @lru_cache
