@@ -14,7 +14,11 @@ class OrderRentPeriodDegreeOneHourError(BaseError):
 
 
 class NotLessorOrderError(BaseError):
-    message = 'User must be a lessor of order for change status of order to accepted'
+    message = 'User must be a lessor of order for change status of order to current'
+
+
+class NotRenterOrderError(BaseError):
+    message = 'User must be a renter of order for change status of order to current'
 
 
 class OrderStatusMustBeUnderConsiderationError(BaseError):

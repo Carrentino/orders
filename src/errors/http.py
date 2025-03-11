@@ -18,7 +18,12 @@ class OrderRentPeriodDegreeOneHourHttpError(ServerError):
 
 
 class NotLessorOrderHttpError(ServerError):
-    message = 'User must be a lessor of order for change status of order to accepted'
+    message = 'User must be a lessor of order for change status of order to current'
+    status_code = status.HTTP_403_FORBIDDEN
+
+
+class NotRenterOrderHttpError(ServerError):
+    message = 'User must be a renter of order for change status of order to current'
     status_code = status.HTTP_403_FORBIDDEN
 
 

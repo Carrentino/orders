@@ -61,13 +61,14 @@ async def test_error_create_order_with_orders_with_accepted_status(
 ):
     await session.execute(text('TRUNCATE TABLE orders'))  # noqa
     await session.commit()
+    lessor_id = uuid.uuid4()
+    car_id = uuid.uuid4()
     await OrderFactory.create(
         desired_start_datetime=datetime.datetime.now(),
         desired_finish_datetime=datetime.datetime.now() + timedelta(hours=3),
         status=OrderStatus.ACCEPTED,
+        car_id=car_id,
     )
-    lessor_id = uuid.uuid4()
-    car_id = uuid.uuid4()
     mock_cache.return_value = {'id': car_id, 'model': 'BMW', 'user_id': lessor_id}
     mock_send_push.return_value = None
     mock_kafka_init.return_value = None
@@ -99,15 +100,16 @@ async def test_create_order_with_orders_with_under_consideration_status(
     desired_finish_datetime,
     session,
 ):
+    lessor_id = uuid.uuid4()
+    car_id = uuid.uuid4()
     await session.execute(text('TRUNCATE TABLE orders'))
     await session.commit()
     await OrderFactory.create(
         desired_start_datetime=datetime.datetime.now(),
         desired_finish_datetime=datetime.datetime.now() + timedelta(hours=3),
         status=OrderStatus.UNDER_CONSIDERATION,
+        car_id=car_id,
     )
-    lessor_id = uuid.uuid4()
-    car_id = uuid.uuid4()
     mock_cache.return_value = {'id': car_id, 'model': 'BMW', 'user_id': lessor_id}
     mock_send_push.return_value = None
     mock_kafka_init.return_value = None

@@ -1,3 +1,4 @@
+from datetime import datetime
 from typing import Any
 from uuid import UUID
 
@@ -6,7 +7,6 @@ from sqlalchemy import select, desc, asc, func, and_, or_
 
 from src.db.consts import OrderStatus
 from src.db.models.order import Order
-from src.web.api.orders.schems import CreateOrderReq
 
 
 class OrderRepository(ISqlAlchemyRepository[Order]):
@@ -43,9 +43,9 @@ class OrderRepository(ISqlAlchemyRepository[Order]):
             'data': objects,
         }
 
-    async def intersection_orders_with_status_more_accepted(self, order_data: CreateOrderReq) -> list[Order]:
-        start = order_data.desired_start_datetime
-        finish = order_data.desired_finish_datetime
+    async def intersection_orders_with_target_status(
+        self, start: datetime, finish: datetime, car_id: UUID, target_status: OrderStatus
+    ) -> list[Order]:
         orders = await self.session.execute(
             select(Order).where(
                 and_(
@@ -60,7 +60,8 @@ class OrderRepository(ISqlAlchemyRepository[Order]):
                             start <= Order.desired_start_datetime, finish >= Order.desired_start_datetime
                         ),  # пересечение слева
                     ),
-                    Order.status == OrderStatus.ACCEPTED,
+                    Order.status == target_status,
+                    Order.car_id == car_id,
                 )
             )
         )
