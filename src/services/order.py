@@ -5,17 +5,23 @@ import httpx
 from asyncpg.pgproto.pgproto import timedelta
 from fastapi.params import Depends
 
+from src.db.consts import OrderStatus
 from src.db.models.order import Order
 from src.errors.service import (
     AlreadyAcceptedOrdersForThisPeriodError,
     CarsServiceError,
     OrderRentPeriodDegreeOneHourError,
+    NotLessorOrderError,
+    OrderStatusMustBeUnderConsiderationError,
+    OrderNotFoundError,
+    NotRenterOrderError,
 )
 from src.integrations.cars import CarsClient
 from src.integrations.notifications import NotificationsKafkaProducer
 from src.integrations.schemas import PushNotification
 from src.repositories.order import OrderRepository
 from src.services.cars_cache import CarCacheService
+from src.tasks import generate_contract
 from src.web.api.orders.schems import LessorOrdersQueryParams, CreateOrderReq
 
 
@@ -88,7 +94,12 @@ class OrderService:
         return await self._add_car_objects(orders_data)
 
     async def create_order(self, order_data: CreateOrderReq, user_id: UUID) -> UUID:
-        intersection_orders = await self.order_repository.intersection_orders_with_status_more_accepted(order_data)
+        intersection_orders = await self.order_repository.intersection_orders_with_target_status(
+            order_data.desired_start_datetime,
+            order_data.desired_finish_datetime,
+            order_data.car_id,
+            OrderStatus.ACCEPTED,
+        )
         if order_data.desired_finish_datetime - timedelta(hours=1) < order_data.desired_start_datetime:
             raise OrderRentPeriodDegreeOneHourError from None
         if len(intersection_orders) > 0:
@@ -108,3 +119,67 @@ class OrderService:
         )
         await self.notifications_kafka_producer.send_push_notification(push)
         return await self.order_repository.create(order)
+
+    async def accept_order(self, order_id: UUID, user_id: UUID):
+        order = await self.order_repository.get(order_id)
+        if order is None:
+            raise OrderNotFoundError
+        if order.lessor_id != user_id:
+            raise NotLessorOrderError
+        if order.status != OrderStatus.UNDER_CONSIDERATION:
+            raise OrderStatusMustBeUnderConsiderationError
+        intersection_orders = await self.order_repository.intersection_orders_with_target_status(
+            order.desired_start_datetime, order.desired_finish_datetime, order.car_id, OrderStatus.UNDER_CONSIDERATION
+        )
+        for order in intersection_orders:
+            await self.order_repository.update(order.id, status=OrderStatus.REJECTED)
+            push = PushNotification(
+                to_user_id=order.renter_id,
+                title='К сожалению, вашу заявку на аренду отклонили(',
+                body='Вашу заявку на аренду автомобиля отклонили \n Не отчаивайтесь и подберите новый вариант :)',
+            )
+            await self.notifications_kafka_producer.send_push_notification(push)
+
+        push = PushNotification(
+            to_user_id=order.renter_id,
+            title='Поздравляем, вашу заявку на аренду одобрили',
+            body='Поздравляем, вашу заявку на аренду одобрили \n Скорее обсуждать детали в чате',
+        )
+        await self.notifications_kafka_producer.send_push_notification(push)
+
+        await self.order_repository.update(order_id, status=OrderStatus.ACCEPTED)
+        generate_contract.delay(order.id)
+
+    async def reject_order(self, order_id: UUID, user_id: UUID):
+        order = await self.order_repository.get(order_id)
+        if order is None:
+            raise OrderNotFoundError
+        if order.lessor_id != user_id:
+            raise NotLessorOrderError
+        if order.status != OrderStatus.UNDER_CONSIDERATION:
+            raise OrderStatusMustBeUnderConsiderationError
+        await self.order_repository.update(order_id, status=OrderStatus.REJECTED)
+
+        push = PushNotification(
+            to_user_id=order.renter_id,
+            title='К сожалению, вашу заявку на аренду отклонили(',
+            body='Вашу заявку на аренду автомобиля отклонили \n Не отчаивайтесь и подберите новый вариант :)',
+        )
+        await self.notifications_kafka_producer.send_push_notification(push)
+
+    async def cancel_order(self, order_id: UUID, user_id: UUID):
+        order = await self.order_repository.get(order_id)
+        if order is None:
+            raise OrderNotFoundError
+        if order.renter_id != user_id:
+            raise NotRenterOrderError
+        if order.status != OrderStatus.UNDER_CONSIDERATION:
+            raise OrderStatusMustBeUnderConsiderationError
+        await self.order_repository.update(order_id, status=OrderStatus.CANCELED)
+
+        push = PushNotification(
+            to_user_id=order.lessor_id,
+            title='Пользователь отменил заявку на аренду вашего авто',
+            body='Пользователь отменил заявку на аренду вашего авто \n Не отчаивайтесь, уверены, скоро будет новая :)',
+        )
+        await self.notifications_kafka_producer.send_push_notification(push)

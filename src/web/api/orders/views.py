@@ -10,11 +10,19 @@ from src.errors.http import (
     AlreadyAcceptedOrdersForThisPeriodHttpError,
     CarsServiceHttpError,
     OrderRentPeriodDegreeOneHourHttpError,
+    NotLessorOrderHttpError,
+    OrderStatusMustBeUnderConsiderationHttpError,
+    OrderNotFoundHttpError,
+    NotRenterOrderHttpError,
 )
 from src.errors.service import (
     AlreadyAcceptedOrdersForThisPeriodError,
     CarsServiceError,
     OrderRentPeriodDegreeOneHourError,
+    OrderStatusMustBeUnderConsiderationError,
+    NotLessorOrderError,
+    OrderNotFoundError,
+    NotRenterOrderError,
 )
 from src.services.order import OrderService
 from src.web.api.base_schems import BaseCreateObjResp
@@ -54,7 +62,6 @@ async def renter_orders(
     query_params: LessorOrdersQueryParams = Depends(),
 ):
     orders = await order_service.get_renter_orders(current_user.user_id, params=query_params)
-
     return PaginatedRenterOrderListResp(
         limit=orders['limit'],
         offset=orders['offset'],
@@ -78,3 +85,51 @@ async def create_order(
         raise CarsServiceHttpError from None
     except OrderRentPeriodDegreeOneHourError:
         raise OrderRentPeriodDegreeOneHourHttpError from None
+
+
+@orders_router.patch('/{order_id}/accept/', status_code=status.HTTP_204_NO_CONTENT)
+async def accept_order(
+    current_user: Annotated[UserContext, Depends(get_current_user)],
+    order_service: Annotated[OrderService, Depends(get_order_service)],
+    order_id: UUID,
+):
+    try:
+        await order_service.accept_order(order_id=order_id, user_id=UUID(current_user.user_id))
+    except NotLessorOrderError:
+        raise NotLessorOrderHttpError from None
+    except OrderStatusMustBeUnderConsiderationError:
+        raise OrderStatusMustBeUnderConsiderationHttpError from None
+    except OrderNotFoundError:
+        raise OrderNotFoundHttpError from None
+
+
+@orders_router.patch('/{order_id}/reject/', status_code=status.HTTP_204_NO_CONTENT)
+async def reject_order(
+    current_user: Annotated[UserContext, Depends(get_current_user)],
+    order_service: Annotated[OrderService, Depends(get_order_service)],
+    order_id: UUID,
+):
+    try:
+        await order_service.reject_order(order_id=order_id, user_id=UUID(current_user.user_id))
+    except NotLessorOrderError:
+        raise NotLessorOrderHttpError from None
+    except OrderStatusMustBeUnderConsiderationError:
+        raise OrderStatusMustBeUnderConsiderationHttpError from None
+    except OrderNotFoundError:
+        raise OrderNotFoundHttpError from None
+
+
+@orders_router.patch('/{order_id}/cancel/', status_code=status.HTTP_204_NO_CONTENT)
+async def cancel_order(
+    current_user: Annotated[UserContext, Depends(get_current_user)],
+    order_service: Annotated[OrderService, Depends(get_order_service)],
+    order_id: UUID,
+):
+    try:
+        await order_service.cancel_order(order_id=order_id, user_id=UUID(current_user.user_id))
+    except NotRenterOrderError:
+        raise NotRenterOrderHttpError from None
+    except OrderStatusMustBeUnderConsiderationError:
+        raise OrderStatusMustBeUnderConsiderationHttpError from None
+    except OrderNotFoundError:
+        raise OrderNotFoundHttpError from None
