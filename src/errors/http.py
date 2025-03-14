@@ -3,7 +3,7 @@ from starlette import status
 
 
 class AlreadyAcceptedOrdersForThisPeriodHttpError(ServerError):
-    message = 'already accepted orders for this time period'
+    message = 'Already accepted orders for this time period'
     status_code = status.HTTP_409_CONFLICT
 
 
@@ -28,10 +28,10 @@ class NotRenterOrderHttpError(ServerError):
 
 
 class OrderStatusMustBeUnderConsiderationHttpError(ServerError):
-    message = 'for change order status to accepted current status of order must be under consideration'
+    message = 'For change order status to accepted current status of order must be under consideration'
     status_code = status.HTTP_403_FORBIDDEN
 
 
 class OrderNotFoundHttpError(ServerError):
-    message = 'NotFound this order'
+    message = 'Not Found this order'
     status_code = status.HTTP_404_NOT_FOUND

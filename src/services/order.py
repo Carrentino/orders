@@ -148,7 +148,7 @@ class OrderService:
         await self.notifications_kafka_producer.send_push_notification(push)
 
         await self.order_repository.update(order_id, status=OrderStatus.ACCEPTED)
-        generate_contract.delay(order)
+        generate_contract.delay(order.id)
 
     async def reject_order(self, order_id: UUID, user_id: UUID):
         order = await self.order_repository.get(order_id)

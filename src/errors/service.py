@@ -2,7 +2,7 @@ from helpers.errors import BaseError
 
 
 class AlreadyAcceptedOrdersForThisPeriodError(BaseError):
-    message = 'already accepted orders for this time period'
+    message = 'Already accepted orders for this time period'
 
 
 class CarsServiceError(BaseError):
@@ -22,8 +22,8 @@ class NotRenterOrderError(BaseError):
 
 
 class OrderStatusMustBeUnderConsiderationError(BaseError):
-    message = 'for change order status to accepted current status of order must be under consideration'
+    message = 'For change order status to accepted current status of order must be under consideration'
 
 
 class OrderNotFoundError(BaseError):
-    message = 'NotFound this order'
+    message = 'Not found this order'

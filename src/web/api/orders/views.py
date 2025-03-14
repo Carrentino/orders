@@ -87,7 +87,7 @@ async def create_order(
         raise OrderRentPeriodDegreeOneHourHttpError from None
 
 
-@orders_router.post('/{order_id}/accept/', status_code=status.HTTP_204_NO_CONTENT)
+@orders_router.patch('/{order_id}/accept/', status_code=status.HTTP_204_NO_CONTENT)
 async def accept_order(
     current_user: Annotated[UserContext, Depends(get_current_user)],
     order_service: Annotated[OrderService, Depends(get_order_service)],
@@ -103,7 +103,7 @@ async def accept_order(
         raise OrderNotFoundHttpError from None
 
 
-@orders_router.post('/{order_id}/reject/', status_code=status.HTTP_204_NO_CONTENT)
+@orders_router.patch('/{order_id}/reject/', status_code=status.HTTP_204_NO_CONTENT)
 async def reject_order(
     current_user: Annotated[UserContext, Depends(get_current_user)],
     order_service: Annotated[OrderService, Depends(get_order_service)],
@@ -119,7 +119,7 @@ async def reject_order(
         raise OrderNotFoundHttpError from None
 
 
-@orders_router.post('/{order_id}/cancel/', status_code=status.HTTP_204_NO_CONTENT)
+@orders_router.patch('/{order_id}/cancel/', status_code=status.HTTP_204_NO_CONTENT)
 async def cancel_order(
     current_user: Annotated[UserContext, Depends(get_current_user)],
     order_service: Annotated[OrderService, Depends(get_order_service)],

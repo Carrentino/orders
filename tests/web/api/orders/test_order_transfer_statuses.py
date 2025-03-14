@@ -18,7 +18,7 @@ async def test_accept_order(mock_kafka_init, mock_send_push, auth_client: AsyncC
         desired_start_datetime=order.desired_start_datetime,
         desired_finish_datetime=order.desired_finish_datetime,
     )
-    response = await auth_client.post(f'/api/orders/{order.id}/accept/')
+    response = await auth_client.patch(f'/api/orders/{order.id}/accept/')
     assert response.status_code == status.HTTP_204_NO_CONTENT
     await session.refresh(order)
     assert order.status == OrderStatus.ACCEPTED
@@ -32,7 +32,7 @@ async def test_reject_order(mock_kafka_init, mock_send_push, auth_client: AsyncC
     mock_send_push.return_value = None
     mock_kafka_init.return_value = None
     order = await OrderFactory.create(lessor_id=auth_client.user_id)
-    response = await auth_client.post(f'/api/orders/{order.id}/reject/')
+    response = await auth_client.patch(f'/api/orders/{order.id}/reject/')
     assert response.status_code == status.HTTP_204_NO_CONTENT
     await session.refresh(order)
     assert order.status == OrderStatus.REJECTED
@@ -44,7 +44,7 @@ async def test_cancel_order(mock_kafka_init, mock_send_push, auth_client: AsyncC
     mock_send_push.return_value = None
     mock_kafka_init.return_value = None
     order = await OrderFactory.create(renter_id=auth_client.user_id)
-    response = await auth_client.post(f'/api/orders/{order.id}/cancel/')
+    response = await auth_client.patch(f'/api/orders/{order.id}/cancel/')
     assert response.status_code == status.HTTP_204_NO_CONTENT
     await session.refresh(order)
     assert order.status == OrderStatus.CANCELED
