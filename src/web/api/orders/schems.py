@@ -1,4 +1,5 @@
 from datetime import datetime
+from decimal import Decimal
 from uuid import UUID
 
 from pydantic import BaseModel, Field
@@ -22,6 +23,7 @@ class OrdersList(BaseModel):
     is_renter_start_order: bool
     is_lessor_start_order: bool
     contract_id: UUID | None = None
+    total_price: Decimal
 
     class Config:
         from_attributes = True

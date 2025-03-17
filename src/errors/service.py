@@ -27,3 +27,7 @@ class OrderStatusMustBeUnderConsiderationError(BaseError):
 
 class OrderNotFoundError(BaseError):
     message = 'Not found this order'
+
+
+class UserServiceIsUnavailableError(BaseError):
+    message = 'User service is unavailable'
