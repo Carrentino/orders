@@ -2,7 +2,7 @@ import httpx
 from urllib.parse import urljoin
 from helpers.clients.http_client import BaseApiClient
 
-from src.errors.service import UserServiceIsUnavailable
+from src.errors.service import UserServiceIsUnavailableError
 from src.settings import get_settings
 
 
@@ -14,5 +14,5 @@ class UsersClient(BaseApiClient):
             response = await self.get(url=urljoin(self._base_url, '/users/'), params={'user__id': [user_id]})
             response.raise_for_status()
         except httpx.HTTPError as e:
-            raise UserServiceIsUnavailable from e
+            raise UserServiceIsUnavailableError from e
         return response

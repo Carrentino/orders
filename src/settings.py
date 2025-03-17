@@ -57,7 +57,7 @@ class Settings(BaseSettings):
         default='postgresql+asyncpg://postgres:postgres@localhost:5432/base'
     )
     test_postgres_dsn: PostgresDsn = Field(  # type: ignore
-        default='postgresql+asyncpg://postgres:@localhost:5432/base_test'
+        default='postgresql+asyncpg://postgres:@localhost:5432/base_testtt'
     )
 
     trace_id_header: str = 'X-Trace-Id'
