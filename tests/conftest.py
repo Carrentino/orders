@@ -57,6 +57,7 @@ def event_loop() -> Generator[AbstractEventLoop, Any, None]:
 async def setup_db() -> AsyncGenerator[SQLAlchemyClient, None]:
     client = TEST_SQL_ALCHEMY_CLIENT
 
+    #  Нужно для адекватного создания таблиц, иначе будет ошибка
     await client.drop_database(dsn=get_settings().test_postgres_dsn)
     await client.create_database(dsn=get_settings().test_postgres_dsn)
     await client.create_all_tables()

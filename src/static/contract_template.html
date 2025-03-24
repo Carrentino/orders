@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <title>Договор аренды</title>
+    <style>
+        body {
+            font-family: 'Times New Roman', serif;
+            margin: 40px;
+            line-height: 1.6;
+        }
+        .header {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+        .header img {
+            width: 150px;
+            margin-bottom: 10px;
+        }
+        .header h1 {
+            font-size: 24px;
+            margin: 0;
+            color: #333;
+        }
+        .header p {
+            font-size: 14px;
+            color: #666;
+            margin: 5px 0;
+        }
+        .contract-info {
+            margin-bottom: 30px;
+        }
+        .contract-info p {
+            margin: 5px 0;
+        }
+        .contract-info strong {
+            font-weight: bold;
+        }
+        .terms {
+            margin-top: 30px;
+        }
+        .terms h2 {
+            font-size: 20px;
+            color: #333;
+            border-bottom: 2px solid #333;
+            padding-bottom: 5px;
+            margin-bottom: 15px;
+        }
+        .terms p {
+            margin: 10px 0;
+        }
+        .footer {
+            margin-top: 40px;
+            text-align: center;
+            font-size: 12px;
+            color: #666;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <img src="file:///{{ logo_path }}" alt="Логотип компании">
+        <h1>Договор аренды</h1>
+        <p>№ {{ contract_number }} от {{ contract_date }}</p>
+    </div>
+
+    <div class="contract-info">
+        <p><strong>Арендатор:</strong> {{ customer_name }}</p>
+        <p><strong>Арендодатель:</strong> {{ executor_name }}</p>
+        <p><strong>Сумма аренды:</strong> {{ total_amount }} руб.</p>
+    </div>
+
+    <div class="terms">
+        <h2>1. Предмет договора</h2>
+        <p>Арендодатель предоставляет Арендатору во временное пользование автомобиль, а Арендатор обязуется оплачивать аренду в размере {{ total_amount }} руб. в соответствии с условиями настоящего договора.</p>
+
+        <h2>2. Обязанности сторон</h2>
+        <p><strong>Арендодатель обязуется:</strong></p>
+        <ul>
+            <li>Передать автомобиль в исправном техническом состоянии.</li>
+            <li>Обеспечить страховку автомобиля.</li>
+        </ul>
+        <p><strong>Арендатор обязуется:</strong></p>
+        <ul>
+            <li>Использовать автомобиль в соответствии с его назначением.</li>
+            <li>Оплачивать аренду в установленные сроки.</li>
+        </ul>
+
+        <h2>3. Срок действия договора</h2>
+        <p>Договор вступает в силу с момента подписания и действует до {{ contract_end_date }}.</p>
+
+        <h2>4. Ответственность сторон</h2>
+        <p>В случае нарушения условий договора стороны несут ответственность в соответствии с действующим законодательством.</p>
+
+        <h2>5. Реквизиты сторон</h2>
+        <p><strong>Арендодатель:</strong></p>
+        <ul>
+            <li>Фамилия Имя: {{ executor_name }}</li>
+        </ul>
+        <p><strong>Арендатор:</strong></p>
+        <ul>
+            <li>Фамилия Имя: {{ customer_name }}</li>
+        </ul>
+    </div>
+
+    <div class="footer">
+        <p>Договор составлен в двух экземплярах, имеющих одинаковую юридическую силу.</p>
+        <p>Подписи сторон:</p>
+        <p>_________________________ ({{ executor_name }})</p>
+        <p>_________________________ ({{ customer_name }})</p>
+    </div>
+</body>
+</html>

@@ -6,7 +6,6 @@ import factory
 from src.db.consts import OrderStatus
 from src.db.models.order import Order
 from tests.factories.base import BaseSqlAlchemyFactory
-from tests.factories.contract import ContractFactory
 
 
 class OrderFactory(BaseSqlAlchemyFactory):
@@ -22,4 +21,4 @@ class OrderFactory(BaseSqlAlchemyFactory):
     start_rent_datetime = factory.LazyFunction(lambda: None)
     finish_rent_datetime = factory.LazyFunction(lambda: None)
     status = OrderStatus.UNDER_CONSIDERATION
-    contract = factory.SubFactory(ContractFactory)
+    total_price = factory.Faker('pydecimal', left_digits=4, right_digits=2, positive=True)

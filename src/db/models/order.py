@@ -1,5 +1,6 @@
 import uuid
 from datetime import datetime
+from decimal import Decimal
 from typing import TYPE_CHECKING
 
 from sqlalchemy import Index, DateTime, ForeignKey, Boolean, Enum
@@ -31,6 +32,7 @@ class Order(Base):
     is_lessor_start_order: Mapped[bool] = mapped_column(Boolean, default=False)
     contract_id: Mapped[uuid.UUID] = mapped_column(ForeignKey('contracts.id'), nullable=True)
     contract: Mapped['Contract'] = relationship("Contract", back_populates="order")
+    total_price: Mapped[Decimal]
 
     __table_args__ = (
         Index('ix_orders_renter_id', 'renter_id', postgresql_using='btree'),

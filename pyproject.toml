@@ -26,7 +26,14 @@ fastapi-storages = "^0.3.0"
 python-jose = "^3.4.0"
 helpers = {git = "https://github.com/Carrentino/helpers.git", rev = "main"}
 aioresponses = "^0.7.8"
-celery = "^5.4.0"
+boto3 = "^1.37.12"
+jinja2 = "^3.1.6"
+pdfkit = "^1.0.0"
+celery = {extras = ["async"], version = "^5.4.0"}
+asgiref = "^3.8.1"
+pyppeteer = "^2.0.0"
+weasyprint = "^64.1"
+pytest = "^8.3.5"
 
 
 [tool.poetry.group.dev.dependencies]
@@ -35,7 +42,6 @@ mypy = "^1.10.0"
 pre-commit = "^3.6.0"
 poetry-pre-commit-plugin = "^0.1.2"
 psycopg = { extras = ["binary"], version = "^3.1.19" }
-pytest = "^8.2.0"
 pytest-asyncio = "^0.23.7"
 pytest-clarity = "^1.0.1"
 pytest-docker = "^3.1.1"

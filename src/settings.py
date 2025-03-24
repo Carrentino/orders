@@ -2,6 +2,7 @@ from functools import lru_cache
 
 from pydantic import Field, PostgresDsn, SecretStr
 from pydantic_settings import BaseSettings, SettingsConfigDict
+from fastapi_storages import S3Storage
 
 
 class RedisSettings(BaseSettings):
@@ -33,7 +34,7 @@ class NotificationsKafka(BaseSettings):
 
 class Settings(BaseSettings):
     model_config = SettingsConfigDict(
-        env_file='../.env',
+        env_file='.env',
         env_file_encoding='utf-8',
         str_strip_whitespace=True,
         validate_default=True,
@@ -56,7 +57,7 @@ class Settings(BaseSettings):
         default='postgresql+asyncpg://postgres:postgres@localhost:5432/base'
     )
     test_postgres_dsn: PostgresDsn = Field(  # type: ignore
-        default='postgresql+asyncpg://postgres:@localhost:5432/base_test'
+        default='postgresql+asyncpg://postgres:@localhost:5432/base_testtttt'
     )
 
     trace_id_header: str = 'X-Trace-Id'
@@ -64,8 +65,24 @@ class Settings(BaseSettings):
 
     redis: RedisSettings = RedisSettings()
 
-    base_cars_url: SecretStr = Field(default='https://carrentino.ru/cars/api/v1/')
+    base_cars_url: SecretStr = Field(default='http://localhost/cars/api/v1/')
+    base_users_url: str = Field(default='http://localhost/users/api/v1/')
     notifications_kafka: NotificationsKafka = NotificationsKafka()
+    aws_access_key_id: str = Field(default='minio', validation_alias="AWS_ACCESS_KEY_ID")
+    aws_secret_access_key: str = Field(default='miniominio', validation_alias="AWS_SECRET_ACCESS_KEY")
+    aws_s3_bucket_name: str = Field(default='local-bucket', validation_alias="S3_BUCKET_NAME")
+    aws_s3_endpoint_url: str = Field(default='localhost:9000/', validation_alias="S3_ENDPOINT_URL")
+
+    @property
+    def storage(self):
+        class S3CustomStorage(S3Storage):
+            AWS_ACCESS_KEY_ID = self.aws_access_key_id
+            AWS_SECRET_ACCESS_KEY = self.aws_secret_access_key
+            AWS_S3_BUCKET_NAME = self.aws_s3_bucket_name
+            AWS_S3_ENDPOINT_URL = self.aws_s3_endpoint_url
+            AWS_S3_USE_SSL = False
+
+        return S3CustomStorage()
 
 
 @lru_cache
