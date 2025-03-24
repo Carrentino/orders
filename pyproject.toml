@@ -33,6 +33,7 @@ celery = {extras = ["async"], version = "^5.4.0"}
 asgiref = "^3.8.1"
 pyppeteer = "^2.0.0"
 weasyprint = "^64.1"
+pytest = "^8.3.5"
 
 
 [tool.poetry.group.dev.dependencies]

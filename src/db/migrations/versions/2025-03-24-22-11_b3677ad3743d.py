@@ -1,8 +1,8 @@
 """new migrations
 
-Revision ID: eec86c49baa5
+Revision ID: b3677ad3743d
 Revises: 
-Create Date: 2025-03-18 01:08:28.536369
+Create Date: 2025-03-24 22:11:08.565155
 
 """
 
@@ -12,7 +12,7 @@ from fastapi_storages.integrations.sqlalchemy import ImageType
 
 
 # revision identifiers, used by Alembic.
-revision = 'eec86c49baa5'
+revision = 'b3677ad3743d'
 down_revision = None
 branch_labels = None
 depends_on = None

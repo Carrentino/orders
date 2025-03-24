@@ -57,7 +57,7 @@ class Settings(BaseSettings):
         default='postgresql+asyncpg://postgres:postgres@localhost:5432/base'
     )
     test_postgres_dsn: PostgresDsn = Field(  # type: ignore
-        default='postgresql+asyncpg://postgres:@localhost:5432/base_testtt'
+        default='postgresql+asyncpg://postgres:@localhost:5432/base_testtttt'
     )
 
     trace_id_header: str = 'X-Trace-Id'
@@ -65,8 +65,8 @@ class Settings(BaseSettings):
 
     redis: RedisSettings = RedisSettings()
 
-    base_cars_url: SecretStr = Field(default='https://carrentino.ru/cars/api/v1/')
-    base_users_url: str = Field(default='https://carrentino.ru/users/api/')
+    base_cars_url: SecretStr = Field(default='http://localhost/cars/api/v1/')
+    base_users_url: str = Field(default='http://localhost/users/api/v1/')
     notifications_kafka: NotificationsKafka = NotificationsKafka()
     aws_access_key_id: str = Field(default='minio', validation_alias="AWS_ACCESS_KEY_ID")
     aws_secret_access_key: str = Field(default='miniominio', validation_alias="AWS_SECRET_ACCESS_KEY")

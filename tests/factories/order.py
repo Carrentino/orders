@@ -22,4 +22,3 @@ class OrderFactory(BaseSqlAlchemyFactory):
     finish_rent_datetime = factory.LazyFunction(lambda: None)
     status = OrderStatus.UNDER_CONSIDERATION
     total_price = factory.Faker('pydecimal', left_digits=4, right_digits=2, positive=True)
-    # contract = factory.SubFactory(ContractFactory)
