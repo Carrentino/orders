@@ -56,6 +56,8 @@ def event_loop() -> Generator[AbstractEventLoop, Any, None]:
 @pytest.fixture(scope='session', autouse=True)
 async def setup_db() -> AsyncGenerator[SQLAlchemyClient, None]:
     client = TEST_SQL_ALCHEMY_CLIENT
+    from src.db.models.contract import Contract  # noqa
+    from src.db.models.order import Order  # noqa
 
     #  Нужно для адекватного создания таблиц, иначе будет ошибка
     await client.drop_database(dsn=get_settings().test_postgres_dsn)
