@@ -7,3 +7,9 @@ class PushNotification(BaseModel):
     to_user_id: UUID
     title: str
     body: str
+
+
+class EmailMsg(BaseModel):
+    to_user_id: UUID
+    title: str
+    body: str

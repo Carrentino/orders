@@ -8,6 +8,4 @@ class ContractFactory(BaseSqlAlchemyFactory):
     class Meta:
         model = Contract
 
-    url = factory.Faker('url')
-    renter_signature = factory.Faker('sha256')
-    lessor_signature = factory.Faker('sha256')
+    filename = factory.Faker('word')
