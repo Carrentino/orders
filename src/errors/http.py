@@ -50,3 +50,18 @@ class NotFoundContractHttpError(ServerError):
 class InvalidOrExpiredCodeHttpError(ServerError):
     message = 'Code has expired or invalid'
     status_code = status.HTTP_400_BAD_REQUEST
+
+
+class NotRenterOrLessorOrderHttpError(ServerError):
+    message = 'You must be lessor or renter of order'
+    status_code = status.HTTP_403_FORBIDDEN
+
+
+class OrderStatusMustBeAcceptedHttpError(ServerError):
+    message = 'Order status must be accepted'
+    status_code = status.HTTP_403_FORBIDDEN
+
+
+class OrderStatusMustBeInProgressHttpError(ServerError):
+    message = 'Order status must be in progress'
+    status_code = status.HTTP_403_FORBIDDEN

@@ -43,3 +43,15 @@ class NotFoundContractError(BaseError):
 
 class InvalidOrExpiredCodeError(BaseError):
     message = 'Code has expired or invalid'
+
+
+class NotRenterOrLessorOrderError(BaseError):
+    message = 'You must be lessor or renter of order'
+
+
+class OrderStatusMustBeAcceptedError(BaseError):
+    message = 'Order status must be accepted'
+
+
+class OrderStatusMustBeInProgressError(BaseError):
+    message = 'Order status must be in progress'
