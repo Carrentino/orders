@@ -31,3 +31,15 @@ class OrderNotFoundError(BaseError):
 
 class UserServiceIsUnavailableError(BaseError):
     message = 'User service is unavailable'
+
+
+class NotOwnerOfContractError(BaseError):
+    message = 'You are not owner of this contract'
+
+
+class NotFoundContractError(BaseError):
+    message = 'Not found this contract'
+
+
+class InvalidOrExpiredCodeError(BaseError):
+    message = 'Code has expired or invalid'

@@ -35,3 +35,18 @@ class OrderStatusMustBeUnderConsiderationHttpError(ServerError):
 class OrderNotFoundHttpError(ServerError):
     message = 'Not Found this order'
     status_code = status.HTTP_404_NOT_FOUND
+
+
+class NotOwnerOfContractHttpError(ServerError):
+    message = 'You are not owner of this contract'
+    status_code = status.HTTP_403_FORBIDDEN
+
+
+class NotFoundContractHttpError(ServerError):
+    message = 'Not found this contract'
+    status_code = status.HTTP_404_NOT_FOUND
+
+
+class InvalidOrExpiredCodeHttpError(ServerError):
+    message = 'Code has expired or invalid'
+    status_code = status.HTTP_400_BAD_REQUEST

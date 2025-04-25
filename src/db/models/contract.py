@@ -1,4 +1,3 @@
-import urllib.parse
 from typing import TYPE_CHECKING
 
 from sqlalchemy import String
@@ -21,5 +20,4 @@ class Contract(Base):
 
     @property
     def file_link(self):
-        base_url = urllib.parse.urljoin(get_settings().aws_s3_endpoint_url, get_settings().aws_s3_bucket_name)
-        return urllib.parse.urljoin(base_url, self.filename)
+        return get_settings().storage.get_path(self.filename)

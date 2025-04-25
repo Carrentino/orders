@@ -7,6 +7,7 @@ from fastapi_storages import S3Storage
 
 class RedisSettings(BaseSettings):
     url: str = Field(default='redis://localhost:6379')
+    email_codes_db: int = Field(default=1)
 
     model_config = SettingsConfigDict(
         env_file='.env',
@@ -15,12 +16,14 @@ class RedisSettings(BaseSettings):
         validate_default=True,
         case_sensitive=False,
         extra='ignore',
+        env_prefix='redis_',
     )
 
 
-class NotificationsKafka(BaseSettings):
+class Kafka(BaseSettings):
     notifications_topic: str = Field(default='notifications_pushes')
-    notifications_kafka_url: str = Field(default='http://localhost:6666')
+    url: str = Field(default='http://localhost:6666')
+    emails_topic: str = Field(default='notifications_mails')
 
     model_config = SettingsConfigDict(
         env_file='.env',
@@ -29,6 +32,7 @@ class NotificationsKafka(BaseSettings):
         validate_default=True,
         case_sensitive=False,
         extra='ignore',
+        env_prefix='kafka_',
     )
 
 
@@ -67,11 +71,12 @@ class Settings(BaseSettings):
 
     base_cars_url: SecretStr = Field(default='http://localhost/cars/api/v1/')
     base_users_url: str = Field(default='http://localhost/users/api/v1/')
-    notifications_kafka: NotificationsKafka = NotificationsKafka()
+    kafka: Kafka = Kafka()
     aws_access_key_id: str = Field(default='minio', validation_alias="AWS_ACCESS_KEY_ID")
     aws_secret_access_key: str = Field(default='miniominio', validation_alias="AWS_SECRET_ACCESS_KEY")
     aws_s3_bucket_name: str = Field(default='local-bucket', validation_alias="S3_BUCKET_NAME")
-    aws_s3_endpoint_url: str = Field(default='localhost:9000/', validation_alias="S3_ENDPOINT_URL")
+    aws_s3_endpoint_url: str = Field(default='localhost:9000', validation_alias="S3_ENDPOINT_URL")
+    aws_s3_use_ssl: bool = Field(default=False)
 
     @property
     def storage(self):
@@ -80,7 +85,7 @@ class Settings(BaseSettings):
             AWS_SECRET_ACCESS_KEY = self.aws_secret_access_key
             AWS_S3_BUCKET_NAME = self.aws_s3_bucket_name
             AWS_S3_ENDPOINT_URL = self.aws_s3_endpoint_url
-            AWS_S3_USE_SSL = False
+            AWS_S3_USE_SSL = self.aws_s3_use_ssl
 
         return S3CustomStorage()
 
