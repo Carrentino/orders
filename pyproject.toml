@@ -34,6 +34,7 @@ asgiref = "^3.8.1"
 pyppeteer = "^2.0.0"
 weasyprint = "^64.1"
 pytest = "^8.3.5"
+pytest-cov = "^6.1.1"
 
 
 [tool.poetry.group.dev.dependencies]

@@ -14,6 +14,7 @@ from src.errors.http import (
     OrderStatusMustBeUnderConsiderationHttpError,
     OrderNotFoundHttpError,
     NotRenterOrderHttpError,
+    OrderStatusMustBeAcceptedHttpError,
 )
 from src.errors.service import (
     AlreadyAcceptedOrdersForThisPeriodError,
@@ -23,6 +24,9 @@ from src.errors.service import (
     NotLessorOrderError,
     OrderNotFoundError,
     NotRenterOrderError,
+    NotRenterOrLessorOrderError,
+    OrderStatusMustBeAcceptedError,
+    OrderStatusMustBeInProgressError,
 )
 from src.services.order import OrderService
 from src.web.api.base_schems import BaseCreateObjResp
@@ -45,7 +49,7 @@ async def lessor_orders(
     order_service: Annotated[OrderService, Depends(get_order_service)],
     query_params: LessorOrdersQueryParams = Depends(),
 ):
-    orders = await order_service.get_lessor_orders(current_user.user_id, params=query_params)
+    orders = await order_service.get_lessor_orders(UUID(current_user.user_id), params=query_params)
 
     return PaginatedLessorOrdersListResp(
         limit=orders['limit'],
@@ -61,7 +65,7 @@ async def renter_orders(
     order_service: Annotated[OrderService, Depends(get_order_service)],
     query_params: LessorOrdersQueryParams = Depends(),
 ):
-    orders = await order_service.get_renter_orders(current_user.user_id, params=query_params)
+    orders = await order_service.get_renter_orders(UUID(current_user.user_id), params=query_params)
     return PaginatedRenterOrderListResp(
         limit=orders['limit'],
         offset=orders['offset'],
@@ -131,5 +135,37 @@ async def cancel_order(
         raise NotRenterOrderHttpError from None
     except OrderStatusMustBeUnderConsiderationError:
         raise OrderStatusMustBeUnderConsiderationHttpError from None
+    except OrderNotFoundError:
+        raise OrderNotFoundHttpError from None
+
+
+@orders_router.patch('/{order_id}/start-rent/', status_code=status.HTTP_204_NO_CONTENT)
+async def start_rent(
+    current_user: Annotated[UserContext, Depends(get_current_user)],
+    order_service: Annotated[OrderService, Depends(get_order_service)],
+    order_id: UUID,
+):
+    try:
+        await order_service.start_rent(order_id=order_id, user_id=UUID(current_user.user_id))
+    except NotRenterOrLessorOrderError:
+        raise NotRenterOrderHttpError from None
+    except OrderStatusMustBeAcceptedError:
+        raise OrderStatusMustBeAcceptedHttpError from None
+    except OrderNotFoundError:
+        raise OrderNotFoundHttpError from None
+
+
+@orders_router.patch('/{order_id}/finish-rent/', status_code=status.HTTP_204_NO_CONTENT)
+async def finish_rent(
+    current_user: Annotated[UserContext, Depends(get_current_user)],
+    order_service: Annotated[OrderService, Depends(get_order_service)],
+    order_id: UUID,
+):
+    try:
+        await order_service.finish_rent(order_id=order_id, user_id=UUID(current_user.user_id))
+    except NotRenterOrderError:
+        raise NotRenterOrderHttpError from None
+    except OrderStatusMustBeInProgressError:
+        raise OrderStatusMustBeAcceptedHttpError from None
     except OrderNotFoundError:
         raise OrderNotFoundHttpError from None

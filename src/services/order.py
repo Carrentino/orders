@@ -1,3 +1,4 @@
+import datetime
 import uuid
 from uuid import UUID
 
@@ -15,6 +16,9 @@ from src.errors.service import (
     OrderStatusMustBeUnderConsiderationError,
     OrderNotFoundError,
     NotRenterOrderError,
+    NotRenterOrLessorOrderError,
+    OrderStatusMustBeAcceptedError,
+    OrderStatusMustBeInProgressError,
 )
 from src.integrations.cars import CarsClient
 from src.integrations.notifications import NotificationsKafkaProducer
@@ -196,5 +200,56 @@ class OrderService:
             to_user_id=order.lessor_id,
             title='Пользователь отменил заявку на аренду вашего авто',
             body='Пользователь отменил заявку на аренду вашего авто \n Не отчаивайтесь, уверены, скоро будет новая :)',
+        )
+        await self.notifications_kafka_producer.send_push_notification(push)
+
+    async def start_rent(self, order_id: UUID, user_id: UUID):
+        order = await self.order_repository.get(order_id)
+        if not order:
+            raise OrderNotFoundError from None
+        if user_id not in (order.lessor_id, order.renter_id):
+            raise NotRenterOrLessorOrderError from None
+        if order.status != OrderStatus.ACCEPTED:
+            raise OrderStatusMustBeAcceptedError from None
+        fields_to_update = {}
+        if user_id == order.lessor_id:
+            fields_to_update['is_lessor_start_order'] = True
+            push = PushNotification(
+                to_user_id=order.renter_id,
+                title='Владелец подтвердил старт аренды',
+                body='Владелец авто подтвердил старт аренды',
+            )
+            if order.is_renter_start_order:
+                fields_to_update['status'] = OrderStatus.IN_PROGRESS
+                fields_to_update['start_rent_datetime'] = datetime.datetime.now()
+        elif user_id == order.renter_id:
+            fields_to_update['is_renter_start_order'] = True
+            push = PushNotification(
+                to_user_id=order.renter_id,
+                title='Арендатор подтвердил старт аренды',
+                body='Арендатор авто подтвердил старт аренды',
+            )
+            if order.is_lessor_start_order:
+                fields_to_update['status'] = OrderStatus.IN_PROGRESS
+                fields_to_update['start_rent_datetime'] = datetime.datetime.now()
+
+        await self.order_repository.update(order_id, **fields_to_update)
+        await self.notifications_kafka_producer.send_push_notification(push)
+
+    async def finish_rent(self, order_id: UUID, user_id):
+        order = await self.order_repository.get(order_id)
+        if not order:
+            raise OrderNotFoundError from None
+        if order.renter_id != user_id:
+            raise NotRenterOrderError from None
+        if order.status != OrderStatus.IN_PROGRESS:
+            raise OrderStatusMustBeInProgressError from None
+        await self.order_repository.update(
+            order_id, finish_rent_datetime=datetime.datetime.now(), status=OrderStatus.FINISHED
+        )
+        push = PushNotification(
+            to_user_id=order.lessor_id,
+            title='Арендатор завершил заказ',
+            body='Арендатор завершил заказ',
         )
         await self.notifications_kafka_producer.send_push_notification(push)
