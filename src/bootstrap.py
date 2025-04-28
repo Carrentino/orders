@@ -44,7 +44,7 @@ def setup_middlewares(app: FastAPI) -> None:
 
 
 def setup_api_routers(app: FastAPI) -> None:
-    api_router = APIRouter(prefix='/api')
+    api_router = APIRouter(prefix='/orders/api')
     api_router.include_router(orders_router, prefix='/orders', tags=['orders'])
     api_router.include_router(contract_router, prefix='/contracts', tags=['contracts'])
     app.include_router(router=api_router)
@@ -60,9 +60,9 @@ def make_app() -> FastAPI:
     app = FastAPI(
         title='orders',
         lifespan=_lifespan,
-        docs_url='/api/docs',
-        redoc_url='/api/redoc',
-        openapi_url='/api/openapi.json',
+        docs_url='/orders/api/docs',
+        redoc_url='/orders/api/redoc',
+        openapi_url='/orders/api/openapi.json',
         default_response_class=UJSONResponse,
     )
 

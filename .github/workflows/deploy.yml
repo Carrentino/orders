@@ -1,0 +1,116 @@
+name: Deploy orders
+
+on:
+  push:
+    branches: [develop]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:15-alpine
+        env:
+          POSTGRES_DB: base_test
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+      redis:
+        image: redis:7-alpine
+        ports:
+          - 6379:6379
+        options: >-
+          --health-cmd "redis-cli ping"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Set up Python
+        uses: actions/setup-python@v2
+        with:
+          python-version: 3.12.9
+
+      - name: Install Poetry
+        run: pip install poetry
+
+      - name: Install dependencies
+        run: poetry install --no-root
+
+      - name: Run tests
+        run: poetry run pytest tests/
+        env:
+          TEST_POSTGRES_DSN: postgresql+asyncpg://postgres:postgres@localhost:5432/base_test
+  build-and-push:
+    needs: test
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      packages: write
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Login to GitHub Container Registry
+        uses: docker/login-action@v1
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GHCR_TOKEN }}
+
+      - name: Build and push
+        run: |
+          TAG=${{ github.sha }}
+          docker build -t ghcr.io/carrentino/orders:${TAG} .
+          docker push ghcr.io/carrentino/orders:${TAG}
+
+  deploy:
+    needs: build-and-push
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      packages: write
+    steps:
+      - name: Deploy to Swarm
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.SSH_HOST }}
+          username: ${{ secrets.SSH_USERNAME }}
+          key: ${{ secrets.SSH_KEY }}
+          script: |
+            TAG=${{ github.sha }}
+            export IMAGE_TAG_ORDERS=${TAG}
+            NEW_CONFIG_NAME="orders_env_$(date +%s)"
+            echo "Config name: NEW_CONFIG_NAME"
+            OLD_CONFIG_NAME=$(docker config ls --format '{{.Name}}' | grep "orders_env_" | head -n 1)
+            docker config create "$NEW_CONFIG_NAME" /home/carrentino-microservices/.orders.env
+            export ORDERS_ENV_CONFIG_NAME=$NEW_CONFIG_NAME
+            envsubst < /home/carrentino-microservices/docker-compose.orders.yml > docker-compose.rendered.yml
+            docker stack deploy -c docker-compose.rendered.yml orders
+            docker config rm $OLD_CONFIG_NAME
+  migrate:
+    needs: deploy
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      packages: write
+    steps:
+      - name: Run migrations
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.SSH_HOST }}
+          username: ${{ secrets.SSH_USERNAME }}
+          key: ${{ secrets.SSH_KEY }}
+          script: |
+            TAG=${{ github.sha }}
+            docker run --rm \
+              --network carrentino-net \
+              --env-file /home/carrentino-microservices/.orders.env \
+              ghcr.io/carrentino/orders:${TAG} \
+              alembic upgrade head
