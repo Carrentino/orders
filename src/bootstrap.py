@@ -60,9 +60,9 @@ def make_app() -> FastAPI:
     app = FastAPI(
         title='orders',
         lifespan=_lifespan,
-        docs_url='/api/docs',
-        redoc_url='/api/redoc',
-        openapi_url='/api/openapi.json',
+        docs_url='/orders/api/docs',
+        redoc_url='/orders/api/redoc',
+        openapi_url='/orders/api/openapi.json',
         default_response_class=UJSONResponse,
     )
 

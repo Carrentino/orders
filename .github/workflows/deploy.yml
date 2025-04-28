@@ -2,7 +2,7 @@ name: Deploy orders
 
 on:
   push:
-    branches: [CARD-79]
+    branches: [develop]
 
 jobs:
   test:
