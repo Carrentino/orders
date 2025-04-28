@@ -67,8 +67,8 @@ jobs:
       - name: Build and push
         run: |
           TAG=${{ github.sha }}
-          docker build -t ghcr.io/carrentino/orders:$TAG .
-          docker push ghcr.io/carrentino/orders:$TAG
+          docker build -t ghcr.io/carrentino/orders:latest .
+          docker push ghcr.io/carrentino/orders:latest
 
   deploy:
     needs: build-and-push
