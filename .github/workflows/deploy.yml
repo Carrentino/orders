@@ -89,7 +89,7 @@ jobs:
             NEW_CONFIG_NAME="orders_env_$(date +%s)"
             echo "Config name: NEW_CONFIG_NAME"
             OLD_CONFIG_NAME=$(docker config ls --format '{{.Name}}' | grep "orders_env_" | head -n 1)
-            docker config create "NEW_CONFIG_NAME" /home/carrentino-microservices/.orders.env
+            docker config create "$NEW_CONFIG_NAME" /home/carrentino-microservices/.orders.env
             export ORDERS_ENV_CONFIG_NAME=$NEW_CONFIG_NAME
             envsubst < /home/carrentino-microservices/docker-compose.orders.yml > docker-compose.rendered.yml
             docker stack deploy -c docker-compose.rendered.yml orders
