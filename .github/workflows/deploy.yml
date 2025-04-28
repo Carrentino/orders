@@ -101,5 +101,5 @@ jobs:
             docker run --rm \
               --network carrentino-net \
               --env-file /home/carrentino-microservices/.orders.env \
-              ghcr.io/carrentino/orders:${{ github.sha }} \
+              ghcr.io/carrentino/orders:latest \
               alembic upgrade head
