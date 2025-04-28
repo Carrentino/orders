@@ -86,7 +86,7 @@ jobs:
           script: |
             TAG=${{ github.sha }}
             export IMAGE_TAG_ORDERS=${TAG}
-            docker config rm orders_env
+            docker config rm orders_orders_env
             envsubst < /home/carrentino-microservices/docker-compose.orders.yml > docker-compose.rendered.yml
             docker stack deploy -c docker-compose.rendered.yml orders
   migrate:
