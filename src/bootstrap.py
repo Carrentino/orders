@@ -44,7 +44,7 @@ def setup_middlewares(app: FastAPI) -> None:
 
 
 def setup_api_routers(app: FastAPI) -> None:
-    api_router = APIRouter(prefix='/api')
+    api_router = APIRouter(prefix='/orders/api')
     api_router.include_router(orders_router, prefix='/orders', tags=['orders'])
     api_router.include_router(contract_router, prefix='/contracts', tags=['contracts'])
     app.include_router(router=api_router)
