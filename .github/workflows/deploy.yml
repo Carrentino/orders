@@ -67,8 +67,8 @@ jobs:
       - name: Build and push
         run: |
           TAG=${{ github.sha }}
-          docker build -t ghcr.io/carrentino/orders:latest .
-          docker push ghcr.io/carrentino/orders:latest
+          docker build -t ghcr.io/carrentino/orders:${TAG} .
+          docker push ghcr.io/carrentino/orders:${TAG}
 
   deploy:
     needs: build-and-push
@@ -83,7 +83,11 @@ jobs:
           host: ${{ secrets.SSH_HOST }}
           username: ${{ secrets.SSH_USERNAME }}
           key: ${{ secrets.SSH_KEY }}
-          script: docker stack deploy -c /home/carrentino-microservices/docker-compose.orders.yml orders
+          script: |
+            TAG=${{ github.sha }}
+            export IMAGE_TAG_ORDERS=${TAG}
+            envsubst < /home/carrentino-microservices/docker-compose.orders.yml > docker-compose.rendered.yml
+            docker stack deploy -c docker-compose.rendered.yml orders
   migrate:
     needs: deploy
     runs-on: ubuntu-latest
@@ -98,8 +102,9 @@ jobs:
           username: ${{ secrets.SSH_USERNAME }}
           key: ${{ secrets.SSH_KEY }}
           script: |
+            TAG=${{ github.sha }}
             docker run --rm \
               --network carrentino-net \
               --env-file /home/carrentino-microservices/.orders.env \
-              ghcr.io/carrentino/orders:latest \
+              ghcr.io/carrentino/orders:${TAG} \
               alembic upgrade head
