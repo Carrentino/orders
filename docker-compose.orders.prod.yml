@@ -6,7 +6,7 @@ configs:
 
 services:
   carrentino_orders_web:
-    image: ghcr.io/carrentino/users:latest
+    image: ghcr.io/carrentino/orders:${GITHUB_SHA}
     networks:
       - carrentino-net
     configs:
@@ -21,7 +21,7 @@ services:
         condition: on-failure
 
   carrentino_orders_celery:
-    image: ghcr.io/carrentino/orders:latest
+    image: ghcr.io/carrentino/orders:${GITHUB_SHA}
     networks:
       - carrentino-net
     configs:
