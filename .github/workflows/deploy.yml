@@ -83,7 +83,7 @@ jobs:
           host: ${{ secrets.SSH_HOST }}
           username: ${{ secrets.SSH_USERNAME }}
           key: ${{ secrets.SSH_KEY }}
-          script: docker stack deploy -c docker-compose.orders.yml orders
+          script: docker stack deploy -c /home/carrentino-microservices/docker-compose.orders.yml orders
   migrate:
     needs: deploy
     runs-on: ubuntu-latest
