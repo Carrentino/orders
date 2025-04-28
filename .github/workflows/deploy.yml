@@ -88,7 +88,7 @@ jobs:
             export IMAGE_TAG_ORDERS=${TAG}
             NEW_CONFIG_NAME="orders_env_$(date +%s)"
             echo "Config name: $CONFIG_NAME"
-            OLD_CONFIG_NAME=$(docker config ls --format '{{.Name}}' | grep "users_env" | head -n 1)
+            OLD_CONFIG_NAME=$(docker config ls --format '{{.Name}}' | grep "orders_env" | head -n 1)
             docker config create "NEW_CONFIG_NAME" /home/carrentino-microservices/.orders.env
             export ORDERS_ENV_CONFIG_NAME=$NEW_CONFIG_NAME
             envsubst < /home/carrentino-microservices/docker-compose.orders.yml > docker-compose.rendered.yml
