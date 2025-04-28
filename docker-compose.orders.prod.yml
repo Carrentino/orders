@@ -1,0 +1,40 @@
+version: '3.8'
+
+configs:
+  orders_env:
+    file: /home/carrentino-microservices/.orders.env
+
+services:
+  carrentino_orders_web:
+    image: ghcr.io/carrentino/users:latest
+    networks:
+      - carrentino-net
+    configs:
+      - source: orders_env
+        target: /app/.env
+    deploy:
+      replicas: 1
+      update_config:
+        parallelism: 2
+        delay: 10s
+      restart_policy:
+        condition: on-failure
+
+  carrentino_orders_celery:
+    image: ghcr.io/carrentino/orders:latest
+    networks:
+      - carrentino-net
+    configs:
+      - source: orders_env
+        target: /app/.env
+    deploy:
+      replicas: 1
+      update_config:
+        parallelism: 2
+        delay: 10s
+      restart_policy:
+        condition: on-failure
+
+networks:
+  carrentino-net:
+    external: true
