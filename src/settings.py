@@ -48,7 +48,7 @@ class Settings(BaseSettings):
 
     host: str = '0.0.0.0'  # noqa
     port: int = 8080
-    workers_count: int = 1
+    workers_count: int = 2
     reload: bool = True
 
     log_level: str = Field(default='info')
